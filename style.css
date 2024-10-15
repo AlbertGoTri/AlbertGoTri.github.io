@@ -1,0 +1,85 @@
+/* Body Styling */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #000; /* Fully black background */
+    color: #e0e0e0;
+    margin: 20px;
+    text-align: center;
+}
+
+/* Headline */
+h1 {
+    font-size: 2.5em;
+    color: #ffcc00;
+    margin-bottom: 20px;
+}
+
+/* Input Form and Labels */
+.rank-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* Align to the left */
+    margin-bottom: 15px;
+    width: 80%;
+    max-width: 400px;
+    margin: 10px auto; /* Center the form on the page */
+}
+
+label {
+    font-size: 1.2em;
+    margin-right: 15px;
+    text-align: left; /* Align the label text to the left */
+    width: 150px; /* Set a fixed width for the labels to keep them aligned */
+}
+
+input {
+    padding: 10px;
+    background-color: #333;
+    color: #fff;
+    border: 2px solid #555;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 300px;
+    text-align: left; /* Ensure the input text is also aligned left */
+}
+
+/* Logos for ranks */
+.rank-container img {
+    width: 40px;
+    height: 40px;
+    margin-right: 15px;
+    background-color: transparent; /* No background color */
+    border: none; /* Remove border */
+    padding: 0; /* Remove padding */
+    box-shadow: none; /* Remove box shadow */
+}
+
+/* Button Styling */
+button {
+    padding: 12px 30px;
+    background-color: #ffcc00;
+    color: #000;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.2em;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+button:hover {
+    background-color: #e0b400;
+}
+
+/* Result Styling */
+#result {
+    margin-top: 30px;
+    font-size: 1.3em;
+    color: #00ff99;
+}
+
+/* Make the input and label container responsive */
+input, label, .rank-container {
+    width: 80%;
+    max-width: 400px;
+    margin: 0 auto;
+}
