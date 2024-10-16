@@ -5,7 +5,7 @@ body {
   text-align: center;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  line-height: 3.5;
+  line-height: 1.6;
   margin: 20px;
   position: relative;
   overflow: hidden;
@@ -107,9 +107,28 @@ body {
 
 /* Headline */
 h1 {
+  font-family: "Ubuntu", sans-serif;
+  font-weight: 700;
+  font-style: normal;
   font-size: 2.5em;
-  color: #ffcc00;
-  margin-bottom: 20px;
+  color: #7ceaa4;
+}
+
+p {
+  font-family: "Ubuntu", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 0.9em;
+  color: rgba(172, 170, 190, 1);
+  margin-bottom: 50px; 
+}
+
+a {
+  font-family: "Ubuntu", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 0.9em;
+  color: #7ceaa4;
 }
 
 /* Rank Container and Input Form Styling */
@@ -145,11 +164,13 @@ input {
   margin-right: 15px;
   background-color: transparent;
   border: none;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 button {
   padding: 12px 30px;
-  background-color: #ffcc00;
+  background-color: #7ceaa4;
   color: #000;
   border: none;
   border-radius: 5px;
@@ -159,7 +180,7 @@ button {
 }
 
 button:hover {
-  background-color: #e0b400;
+  background-color: #6bc692;
 }
 
 #result {
