@@ -1,7 +1,3 @@
-import { inject } from '@vercel/analytics';
-inject();
-
-
 function calculate() {
     // Get input values (prices for Grey, Green, Blue, Purple, Red, Yellow ranks)
     const grey = parseFloat(document.getElementById('num1').value);
