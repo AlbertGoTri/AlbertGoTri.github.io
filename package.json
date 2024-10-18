@@ -1,0 +1,23 @@
+{
+  "name": "fcmobilecalculator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlbertGoTri/FCMobileCalculator.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AlbertGoTri/FCMobileCalculator/issues"
+  },
+  "homepage": "https://github.com/AlbertGoTri/FCMobileCalculator#readme",
+  "dependencies": {
+    "@vercel/analytics": "^1.3.1"
+  }
+}
