@@ -1,3 +1,7 @@
+function redirectToPage(url) {
+    window.location.href = url;
+}
+
 function calculate() {
     // Get input values (prices for Grey, Green, Blue, Purple, Red, Yellow ranks)
     const grey = parseFloat(document.getElementById('num1').value);
@@ -57,12 +61,12 @@ function calculate() {
     // Display the result with images
     const rankNames = ["Grey", "Green", "Blue", "Purple", "Red", "Yellow"];
     const rankImages = [
-        "grey-rank.png",
-        "green-rank.png",
-        "blue-rank.png",
-        "purple-rank.png",
-        "red-rank.png",
-        "yellow-rank.png"
+        "../sources/grey-rank.png",
+        "../sources/green-rank.png",
+        "../sources/blue-rank.png",
+        "../sources/purple-rank.png",
+        "../sources/red-rank.png",
+        "../sources/yellow-rank.png"
     ];
 
     if (bestInvestment.profitPerURP > 0) {
@@ -77,4 +81,15 @@ function calculate() {
     } else {
         document.getElementById('result').innerHTML = "No profitable investment found.";
     }
+}
+
+function minimumPrice() {
+    const buyprice = parseFloat(document.getElementById('buyprice').value);
+    if (isNaN(buyprice)) {
+        document.getElementById('result').innerHTML = "Please enter a valid number.";
+        return;
+    }
+    const minprice = Math.ceil(((buyprice+100000)/0.9)/100000)*100000;
+    const formatted = minprice.toLocaleString('en-US');
+    document.getElementById('result').innerHTML = 'Minimum sell price for benefit: ' + formatted + ' FC Coins';
 }
