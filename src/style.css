@@ -1,0 +1,866 @@
+/*
+  Editorial print reference: a research monograph.
+  Ivory stock with grain, ink, hairline rules, marginalia, one navy accent.
+  Deliberately not: neon-on-dark, glow gradients, uniform rounded cards,
+  and not warm-cream-plus-terracotta either.
+*/
+
+:root {
+  /* Warm ivory stock with a navy accent — the classic printed pairing.
+     Cream on its own was never the problem; cream + terracotta + all-serif
+     was, and the accent here stays cool, so it reads as paper, not craft brand. */
+  --paper: #f2ecdb;
+  --paper-sunk: #e7dfc8;
+  --ink: #1a1712;
+  --ink-2: #4a4436;
+  /* Dark enough to clear 4.5:1 on the ivory — this token carries the smallest
+     text on the page (marginalia, captions, colophon), so it cannot be faint. */
+  --ink-3: #6b6450;
+  --rule: #dbd2b9;
+  --rule-strong: #aea484;
+  /* Grain strength for the stock. Light mode only. */
+  --grain: 0.06;
+
+  /* Reserved for interaction and for the one figure that matters. Nothing else. */
+  --accent: #1c3f6e;
+  --accent-hover: #0e2749;
+
+  --serif: 'Newsreader', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+  --sans: 'IBM Plex Sans', -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
+
+  /* Easing with a little overshoot. Linear reads mechanical. */
+  --ease: cubic-bezier(0.34, 1.4, 0.5, 1);
+  --ease-out: cubic-bezier(0.2, 0.6, 0.3, 1);
+
+  /* Height of the sticky masthead. Anchor offsets and the sticky marginalia
+     both derive from this, so the bar can change height without stranding
+     section headings underneath it. */
+  --bar: 55px;
+
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/*
+  Light is the default for everyone, regardless of OS setting — deliberately
+  not prefers-color-scheme. Dark applies only when a visitor asks for it via
+  the masthead control, which sets data-theme="dark" on <html> and persists
+  the choice; the inline script in index.html re-applies it before first paint.
+*/
+:root[data-theme='dark'] {
+  --paper: #0f1216;
+  --paper-sunk: #161a1f;
+  --ink: #e3e7ea;
+  --ink-2: #a6aeb5;
+  --ink-3: #737c84;
+  --rule: #262c33;
+  --rule-strong: #3b434b;
+  --accent: #8fb4e0;
+  --accent-hover: #b8d3f0;
+  /* No grain in dark: the stock texture is a light-mode idea. */
+  --grain: 0;
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  /* Body in the technical sans, headings in the serif. All-serif-on-cream is
+     the trope; the contrast between the two is the more specific choice. */
+  font-family: var(--sans);
+  font-optical-sizing: auto;
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* Softens the switch between themes. Reduced-motion strips it globally. */
+  transition:
+    background-color 0.3s var(--ease-out),
+    color 0.3s var(--ease-out);
+}
+
+/*
+  Paper grain. Fixed, so it behaves like stock the text sits on rather than
+  something that scrolls along with it.
+*/
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: var(--grain);
+  /* Fractal noise rather than a dot grid: a regular grid of dots reads as graph
+     paper, while turbulence reads as fibre in the stock. Inline SVG, so there is
+     no image request. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  mix-blend-mode: multiply;
+}
+
+#app {
+  position: relative;
+  z-index: 1;
+}
+
+/* The standfirst and section ledes stay in the serif — they are display copy. */
+.standfirst,
+.lede {
+  font-family: var(--serif);
+}
+
+/* ---------------------------------------------------------------
+   Asymmetric page grid: a narrow marginalia rail, then the text
+   column. The right margin is left wide on purpose — the text block
+   sits left of centre the way it does on a printed page.
+   --------------------------------------------------------------- */
+
+.sheet {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding-inline: clamp(20px, 5vw, 56px);
+}
+
+.rail {
+  display: grid;
+  grid-template-columns: 148px minmax(0, 660px);
+  column-gap: clamp(20px, 4vw, 52px);
+}
+
+.rail > .margin {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  line-height: 1.55;
+  color: var(--ink-3);
+  letter-spacing: 0.02em;
+  padding-top: 0.42rem;
+}
+
+/* Functional motion, not decoration: on a long entry the dates and the source
+   link stay level with the text you are actually reading. */
+.entry > .margin,
+.work > .margin {
+  position: sticky;
+  /* Clears the sticky masthead rather than sliding under it. */
+  top: calc(var(--bar) + 20px);
+  align-self: start;
+}
+
+@media (max-width: 840px) {
+  .rail {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 8px;
+  }
+  .rail > .margin {
+    padding-top: 0;
+  }
+}
+
+/* ---------------------------------------------------------------
+   Typography — wide steps between levels, not a flat ramp.
+   --------------------------------------------------------------- */
+
+h1,
+h2,
+h3 {
+  font-family: var(--serif);
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.12;
+  letter-spacing: -0.012em;
+}
+
+h1 {
+  font-size: clamp(2.5rem, 7vw, 4rem);
+  font-weight: 400;
+}
+
+h2 {
+  font-size: clamp(1.6rem, 3.4vw, 2.15rem);
+}
+
+h3 {
+  font-size: 1.24rem;
+}
+
+p {
+  margin: 0 0 1.05em;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: color-mix(in srgb, var(--accent) 32%, transparent);
+  transition:
+    text-decoration-color 0.22s var(--ease-out),
+    text-decoration-thickness 0.22s var(--ease),
+    text-underline-offset 0.22s var(--ease),
+    color 0.18s var(--ease-out);
+}
+
+a:hover {
+  color: var(--accent-hover);
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+}
+
+/* External-link arrows move the way a thing being followed would. */
+.arrow {
+  display: inline-block;
+  transition: transform 0.24s var(--ease);
+}
+
+a:hover .arrow {
+  transform: translate(2px, -2px);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* Small caps label — the running head of each section. */
+.label {
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 10px 16px;
+  z-index: 100;
+}
+
+.skip-link:focus {
+  left: 0;
+}
+
+/* ---------------------------------------------------------------
+   Masthead
+   --------------------------------------------------------------- */
+
+.masthead {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  /* Opaque, not translucent-with-blur: the page is stock and ink, and frosted
+     glass belongs to a different idea. */
+  background: var(--paper);
+  border-bottom: 1px solid var(--ink);
+  padding-block: 14px;
+  margin-bottom: 0;
+  transition: background-color 0.3s var(--ease-out);
+}
+
+.masthead-inner {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.masthead-name {
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.masthead nav ul {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.masthead nav a {
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  color: var(--ink-2);
+  text-decoration: none;
+  padding-bottom: 2px;
+  border-bottom: 1px solid transparent;
+}
+
+.masthead nav a:hover {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+}
+
+.masthead-end {
+  display: flex;
+  align-items: baseline;
+  gap: 22px;
+}
+
+@media (max-width: 640px) {
+  /* Section links go; the theme control stays. */
+  .masthead nav {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------
+   Theme control — two named states divided by a rule, in keeping
+   with the rest of the page. Not an icon: the label says which.
+   --------------------------------------------------------------- */
+
+.theme-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.theme-switch button {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  border-bottom: 1px solid transparent;
+  transition:
+    color 0.18s var(--ease-out),
+    border-color 0.18s var(--ease-out);
+}
+
+.theme-switch button:hover {
+  color: var(--ink);
+}
+
+/* The active state is marked, not merely coloured. */
+.theme-switch button[aria-pressed='true'] {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+}
+
+.theme-switch-rule {
+  width: 1px;
+  height: 11px;
+  background: var(--rule-strong);
+}
+
+/* ---------------------------------------------------------------
+   Opening — a standfirst, as a long-form article opens.
+   --------------------------------------------------------------- */
+
+.opening {
+  padding-block: clamp(56px, 9vw, 104px) clamp(40px, 6vw, 72px);
+  border-bottom: 1px solid var(--rule);
+}
+
+.opening h1 {
+  margin-bottom: 0.28em;
+  max-width: 13ch;
+}
+
+.opening .standfirst {
+  font-size: clamp(1.12rem, 2.1vw, 1.36rem);
+  line-height: 1.5;
+  color: var(--ink-2);
+  max-width: 46ch;
+  margin-bottom: 1.5em;
+}
+
+.opening .margin .live {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+@media (max-width: 840px) {
+  .opening .margin {
+    margin-bottom: 14px;
+  }
+  .opening .margin br {
+    display: none;
+  }
+  .opening .margin > * + *,
+  .opening .margin {
+    word-spacing: 0.1em;
+  }
+}
+
+.byline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+  font-family: var(--sans);
+  font-size: 0.88rem;
+}
+
+/* ---------------------------------------------------------------
+   Sections
+   --------------------------------------------------------------- */
+
+.section {
+  padding-block: clamp(48px, 7vw, 80px);
+  border-bottom: 1px solid var(--rule);
+  scroll-margin-top: calc(var(--bar) + 18px);
+}
+
+.section:last-of-type {
+  border-bottom: 0;
+}
+
+.section-title {
+  margin-bottom: 1.6rem;
+}
+
+.prose {
+  max-width: 62ch;
+  color: var(--ink-2);
+}
+
+.prose p:last-child {
+  margin-bottom: 0;
+}
+
+.lede {
+  font-size: 1.16rem;
+  color: var(--ink);
+}
+
+/* ---------------------------------------------------------------
+   Experience — entries separated by rules and spacing, not cards.
+   --------------------------------------------------------------- */
+
+.entry {
+  padding-block: 30px;
+  border-top: 1px solid var(--rule);
+}
+
+.entry:first-of-type {
+  border-top: 1px solid var(--rule-strong);
+}
+
+.entry h3 {
+  margin-bottom: 1px;
+}
+
+.entry .at {
+  font-family: var(--sans);
+  font-size: 0.92rem;
+  color: var(--ink-2);
+  margin-bottom: 0.9rem;
+}
+
+.margin .now {
+  display: inline-block;
+  margin-top: 5px;
+  color: var(--accent);
+  border-top: 2px solid var(--accent);
+  padding-top: 3px;
+}
+
+/* Hanging-indent list — the bullet lives in the margin, as in print. */
+.hang li {
+  position: relative;
+  padding-left: 1.15em;
+  margin-bottom: 0.62em;
+  color: var(--ink-2);
+  font-size: 1rem;
+}
+
+.hang li::before {
+  content: '·';
+  position: absolute;
+  left: 0.15em;
+  color: var(--rule-strong);
+  font-weight: 700;
+}
+
+.hang li:last-child {
+  margin-bottom: 0;
+}
+
+/* ---------------------------------------------------------------
+   Work — each piece is an article, not a card.
+   --------------------------------------------------------------- */
+
+.work {
+  padding-block: 38px;
+  border-top: 1px solid var(--rule);
+}
+
+.work:first-of-type {
+  border-top: 1px solid var(--rule-strong);
+}
+
+.work h3 {
+  max-width: 24ch;
+  margin-bottom: 0.35rem;
+}
+
+.work .summary {
+  color: var(--ink-2);
+  margin-bottom: 1.15em;
+}
+
+.source-link {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+/* Results table — the thesis produced measurements, so show a table. */
+.results {
+  width: 100%;
+  border-collapse: collapse;
+  margin-block: 1.3em 1.5em;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.results caption {
+  caption-side: top;
+  text-align: left;
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding-bottom: 8px;
+}
+
+.results th,
+.results td {
+  text-align: left;
+  padding: 7px 14px 7px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.results thead th {
+  border-bottom: 1px solid var(--rule-strong);
+  font-weight: 600;
+  color: var(--ink-3);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.results tbody tr:last-child th,
+.results tbody tr:last-child td {
+  border-bottom: 1px solid var(--rule-strong);
+}
+
+.results th[scope='row'] {
+  font-weight: 400;
+  color: var(--ink);
+}
+
+/* Reading a table row is an act; the row acknowledges it. */
+.results tbody tr {
+  transition: background-color 0.18s var(--ease-out);
+}
+
+.results tbody tr:hover {
+  background: var(--paper-sunk);
+}
+
+/* The operating point. Marked, not decorated. */
+.results tr.is-key td {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.results tr.is-key th[scope='row'] {
+  font-weight: 600;
+  box-shadow: inset 2px 0 0 var(--accent);
+  padding-left: 9px;
+}
+
+/* Colophon line: the stack, set as running text rather than pills. */
+.colophon {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--ink-3);
+  margin-top: 1.25em;
+  padding-top: 0.85em;
+  border-top: 1px dotted var(--rule-strong);
+}
+
+.colophon b {
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+/* ---------------------------------------------------------------
+   Index of remaining repos — a reference list, not a card grid.
+   --------------------------------------------------------------- */
+
+.index {
+  margin-top: 12px;
+  border-top: 1px solid var(--rule-strong);
+}
+
+.index li {
+  border-bottom: 1px solid var(--rule);
+}
+
+.index a {
+  display: grid;
+  grid-template-columns: minmax(0, 15rem) minmax(0, 1fr);
+  gap: 4px 28px;
+  padding: 15px 0 15px 0;
+  text-decoration: none;
+  color: inherit;
+  transition:
+    padding-left 0.24s var(--ease),
+    background-color 0.2s var(--ease-out);
+}
+
+.index a:hover {
+  background: var(--paper-sunk);
+  padding-left: 10px;
+}
+
+.index a:hover .index-name {
+  color: var(--accent);
+}
+
+.index-name {
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.index-note {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  display: block;
+  margin-top: 3px;
+}
+
+.index-blurb {
+  font-size: 0.96rem;
+  color: var(--ink-2);
+}
+
+.index-blurb .tags {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--ink-3);
+  display: block;
+  margin-top: 5px;
+}
+
+@media (max-width: 620px) {
+  .index a {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------------------------------------------------------------
+   Tools — running text with semicolons, the way a CV actually reads.
+   --------------------------------------------------------------- */
+
+.deflist {
+  display: grid;
+  grid-template-columns: minmax(0, 11rem) minmax(0, 1fr);
+  gap: 0 28px;
+}
+
+.deflist dt {
+  font-family: var(--sans);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding-top: 15px;
+  border-top: 1px solid var(--rule);
+}
+
+.deflist dd {
+  margin: 0;
+  padding-block: 15px;
+  border-top: 1px solid var(--rule);
+  color: var(--ink-2);
+}
+
+.deflist dd:last-of-type,
+.deflist dt:last-of-type {
+  border-bottom: 1px solid var(--rule);
+}
+
+@media (max-width: 620px) {
+  .deflist {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .deflist dd {
+    border-top: 0;
+    padding-top: 4px;
+  }
+  .deflist dt {
+    padding-top: 15px;
+  }
+}
+
+/* ---------------------------------------------------------------
+   Education, certificates, languages
+   --------------------------------------------------------------- */
+
+.stack-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+  gap: clamp(28px, 5vw, 60px);
+  align-items: start;
+}
+
+@media (max-width: 780px) {
+  .stack-cols {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.sub-label {
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin: 0 0 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--rule-strong);
+}
+
+.rows li {
+  padding-block: 13px;
+  border-bottom: 1px solid var(--rule);
+  font-size: 0.96rem;
+  color: var(--ink-2);
+}
+
+.rows .title {
+  color: var(--ink);
+  display: block;
+}
+
+.rows .meta {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--ink-3);
+  display: block;
+  margin-top: 2px;
+}
+
+.split {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: baseline;
+}
+
+.split .level {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--ink-3);
+  text-align: right;
+}
+
+/* ---------------------------------------------------------------
+   Closing
+   --------------------------------------------------------------- */
+
+.closing h2 {
+  max-width: 17ch;
+  margin-bottom: 0.5em;
+}
+
+.closing .prose {
+  margin-bottom: 1.7em;
+}
+
+.contact-lines {
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  border-top: 1px solid var(--rule-strong);
+}
+
+.contact-lines li {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  gap: 16px;
+  padding-block: 12px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.contact-lines .key {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding-top: 3px;
+}
+
+.colophon-foot {
+  padding-block: 22px 40px;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  line-height: 1.7;
+  color: var(--ink-3);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 40px;
+  justify-content: space-between;
+  align-items: baseline;
+  border-top: 1px solid var(--ink);
+}
+
+.colophon-foot p {
+  margin: 0;
+  max-width: 56ch;
+}
